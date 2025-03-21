@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clothing Store</title>
+    <script src="https://unpkg.com/vue@3"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+          background: linear-gradient(to right, #1e3c72, #2a5298);
+        
+            font-size: 18px;
+            color: #fff;
+        }
+        header {
+            background: linear-gradient(to right, #5b43e4, #242d67);
+            color: #fff;
+            padding: 50px;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .container {
+            max-width: 500px;
+            margin: 20px auto;
+            padding: 30px;
+            border-radius: 15px;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            margin: 12px 0;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.3);
+            color: #fff;
+            font-size: 16px;
+        }
+        button {
+            background-color: #f39c12;
+            color: #fff;
+            border: none;
+            padding: 12px;
+            cursor: pointer;
+            width: 100%;
+            border-radius: 8px;
+            font-size: 18px;
+            transition: 0.3s;
+        }
+        button:hover {
+            background-color: #e67e22;
+        }
+        .products, .cart {
+            padding: 20px;
+        }
+        .product, .cart-item {
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 15px;
+            margin: 15px;
+            width: 250px;
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+        }
+        .product img {
+            width: 100%;
+            height: auto;
+            border-radius: 10px;
+        }
+        footer {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            font-size: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <header>
+            <h1>Clothing Store</h1>
+            <p v-if="loggedIn"> Welcome: {{ username }}  <button @click="logout">تسجيل خروج</button></p>
+        </header>
+        
+        <div v-if="!loggedIn" class="container">
+            <h2>تسجيل الدخول</h2>
+            <input type="text" v-model="username" placeholder="اسم المستخدم">
+            <input type="password" v-model="password" placeholder="كلمة المرور">
+            <button @click="login">دخول</button> <br>
+            <button>إنشاء حساب</button>
+        </div>
+        
+        <div v-else>
+            <main>
+                <section class="products">
+                    <h2>المنتجات</h2>
+                    <div class="product" v-for="product in products" :key="product.id">
+                        <img :src="product.image" :alt="product.name">
+                        <h3>{{ product.name }}</h3>
+                        <p>{{ product.description }}</p>
+                        <p>السعر: {{ product.price }} ج.م</p>
+                        <button @click="addToCart(product)">إضافة إلى السلة</button>
+                    </div>
+                </section>
+                
+                <section class="cart">
+                    <h2>سلة المشتريات</h2>
+                    <div class="cart-item" v-for="(item, index) in cart" :key="index">
+                        <p>{{ item.name }} - {{ item.price }} ج.م</p>
+                        <button @click="removeFromCart(index)">إزالة</button>
+                    </div>
+                    <p v-if="cart.length === 0">السلة فارغة</p>
+                    <button v-if="cart.length > 0" @click="placeOrder">إتمام الطلب</button>
+                </section>
+            </main>
+        </div>
+    </div>
+    <footer>
+        <p>Copyright © 2025 by Mario Wageh</p>
+    </footer>
+    <script>
+        const app = Vue.createApp({
+            data() {
+                return {
+                    loggedIn: false,
+                    username: "",
+                    password: "",
+                    products: [
+                    { id: 1, name: "تيشيرت كاجوال", description: "تيشيرت عصري", price: 250, image: "tsh.jpg" },
+                        { id: 2, name: "بنطلون جينز", description: "بنطلون جينز مريح وأنيق", price: 400, image: "بنطلون-جينز-ازرق.jpg" },
+                        { id: 3, name: "جاكيت شتوي", description: "جاكيت عالي الجودة لمظهر أنيق", price: 600, image: "1.jpg" },
+                        { id: 4, name: "تيشيرت كاجوال", description: "تيشيرت عصري", price: 150, image: "2.webp" },
+                        { id: 5, name: "تيشيرت كاجوال", description: "تيشيرت عصري", price: 300, image: "3.jpg" },
+                        { id: 6, name: "تيشيرت كاجوال", description: "تيشيرت عصري", price: 200, image: "4.webp" },
+                        { id: 7, name: "تيشيرت كاجوال", description: "تيشيرت عصري", price: 550, image: "55555.png" },
+                        { id: 8, name: "بنطلون جينز", description: "بنطلون جينز مريح وأنيق", price: 400, image: "6.jpg" }
+                    ],   
+                    cart: []
+                };
+            },
+            methods: {
+                login() {
+                    if (this.username && this.password) {
+                        this.loggedIn = true;
+                    } else {
+                        alert("يرجى إدخال اسم المستخدم وكلمة المرور");
+                    }
+                },
+                logout() {
+                    this.loggedIn = false;
+                    this.username = "";
+                    this.password = "";
+                },
+                addToCart(product) {
+                    this.cart.push(product);
+                },
+                removeFromCart(index) {
+                    this.cart.splice(index, 1);
+                },
+                placeOrder() {
+                    alert("تم إتمام الطلب بنجاح!");
+                    this.cart = [];
+                }
+            }
+        }).mount("#app");
+    </script>
+</body>
+</html>
